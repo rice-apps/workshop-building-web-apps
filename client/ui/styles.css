@@ -51,7 +51,8 @@ section {
   padding: 24px;
   margin: 20px 0;
 }
-form {
+#project-form,
+#member-form {
   display: grid;
   gap: 10px;
 }
@@ -75,10 +76,6 @@ button.primary-button {
   border: 0;
   font-weight: 650;
 }
-button:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
 label {
   font-weight: 650;
 }
@@ -94,12 +91,6 @@ a:focus-visible {
   padding: 12px;
   border-radius: 8px;
   font-size: 0.9rem;
-}
-#status {
-  min-height: 1.5em;
-}
-#status[data-error="true"] {
-  color: #9b251e;
 }
 .list-heading {
   display: flex;
