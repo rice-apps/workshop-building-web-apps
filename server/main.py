@@ -53,7 +53,7 @@ def list_members(role: Role | None = None):
 
 @app.post("/api/members")
 def add_member(member: MemberInput):
-    # TODO: replace this diagnostic stub with a call to services.add_member.
+    # TODO 3: replace this diagnostic stub with a call to services.add_member.
     # Pass member.name, member.class_year, and member.role.
     # Return the saved member in a JSONResponse with status_code=201.
     # Use add_project below as the reference. This stub does not save anything.

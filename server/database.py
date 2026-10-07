@@ -58,7 +58,7 @@ def add_member(name, class_year, role):
     insert_query = "INSERT INTO members (id, name, class_year, role) VALUES (?, ?, ?, ?)"
     select_query = "SELECT * FROM members WHERE id = ?"
 
-    # TODO: generate an ID and use connect() to open a database connection.
+    # TODO 4: generate an ID and use connect() to open a database connection.
     # Execute insert_query with (member_id, name, class_year, role).
     # Execute select_query with (member_id,), fetch the row, and return dict(row).
     # Use add_project below as the reference; no SQL writing is required.
