@@ -1,17 +1,57 @@
+"""HTTP boundary: validate requests, call application operations, return JSON."""
+from contextlib import asynccontextmanager
+import sqlite3
+from typing import Annotated, Literal
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from database import StorageError, store
-from projects import router as projects_router
-from members import router as members_router
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+import database
+import services
 
-app = FastAPI(title="RiceApps workshop", description="Fictional data only. Local teaching app, no authentication.")
-app.include_router(projects_router)
-app.include_router(members_router)
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, strict=True)]
+Role = Literal["developer", "designer"]
 
-@app.exception_handler(StorageError)
-def storage_error(request: Request, error: StorageError):
-    return JSONResponse(status_code=503, content={"detail": str(error)})
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "storage": store.mode, "note": "Local SQLite fallback — not Supabase" if store.mode == "local" else "Supabase configured (health does not verify access)"}
+class ProjectInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: Name
+
+
+class MemberInput(ProjectInput):
+    class_year: Annotated[int, Field(ge=2000, le=2100, strict=True)]
+    role: Role
+
+
+@asynccontextmanager
+async def lifespan(app):
+    database.initialize()
+    yield
+
+
+app = FastAPI(title="RiceApps", lifespan=lifespan)
+
+
+@app.exception_handler(sqlite3.Error)
+def storage_error(request: Request, error: sqlite3.Error):
+    # Keep database internals out of responses and logs.
+    return JSONResponse(status_code=503, content={"detail": "Database unavailable. Check the server's database file and permissions."})
+
+
+@app.get("/api/members")
+def list_members(role: Role | None = None):
+    return services.list_members(role)
+
+
+@app.post("/api/members", status_code=201)
+def add_member(member: MemberInput):
+    return services.add_member(member.name, member.class_year, member.role)
+
+
+@app.get("/api/projects")
+def list_projects():
+    return services.list_projects()
+
+
+@app.post("/api/projects", status_code=201)
+def add_project(project: ProjectInput):
+    return services.add_project(project.name)

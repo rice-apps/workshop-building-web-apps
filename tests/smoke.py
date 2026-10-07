@@ -34,17 +34,16 @@ with tempfile.TemporaryDirectory() as temporary:
     server = Path(temporary) / "server"
     shutil.copytree(ROOT / "server", server, ignore=shutil.ignore_patterns(".venv*", "__pycache__", ".env", "*.sqlite3*"))
     def start_api():
-        return subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--app-dir", str(server), "--host", "127.0.0.1", "--port", "8000"], env={**os.environ, "STORAGE_MODE":"local"}, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--app-dir", str(server), "--host", "127.0.0.1", "--port", "8000"], env={**os.environ, "WORKSHOP_DATABASE":str(Path(temporary) / "smoke.sqlite3")}, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     api = start_api()
     vite = None
     try:
-        ready("http://127.0.0.1:8000/api/health", api)
+        ready("http://127.0.0.1:8000/api/projects", api)
         vite = subprocess.Popen(["node", "node_modules/vite/bin/vite.js", "--host", "127.0.0.1"], cwd=ROOT / "client", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        ready("http://127.0.0.1:5173", vite)
+        ready("http://127.0.0.1:5173/members.html", vite)
         base = "http://127.0.0.1:5173"
-        module = httpx.get(base + "/api.ts")
-        assert module.status_code == 200 and "export" in module.text, "Proxy must not intercept api.ts"
-        assert "Local SQLite" in httpx.get(base + "/api/health").text
+        module = httpx.get(base + "/members-api.ts")
+        assert module.status_code == 200 and "export" in module.text, "Proxy must not intercept TypeScript modules"
         assert httpx.post(base + "/api/projects", json={"name":"Demo Smoke Project"}).status_code == 201
         row = httpx.post(base + "/api/members", json={"name":"Demo Smoke Member", "role":"designer", "class_year":2029})
         assert row.status_code == 201
@@ -52,7 +51,7 @@ with tempfile.TemporaryDirectory() as temporary:
             assert second_client.get(base + "/api/members?role=designer").json() == [row.json()]
         stop(api)
         api = start_api()
-        ready("http://127.0.0.1:8000/api/health", api)
+        ready("http://127.0.0.1:8000/api/projects", api)
         assert httpx.get(base + "/api/members").json() == [row.json()]
         print("Live HTTP passed: JS module, proxy, Projects, member insert, second client, backend restart.")
     finally:

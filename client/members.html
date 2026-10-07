@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RiceApps · Members</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <header><h1>RiceApps</h1><p>A fictional team, built together.</p></header>
+    <nav aria-label="Pages"><a href="/members.html">Members</a><a href="/projects.html">Projects</a></nav>
+    <section>
+      <h2>Add a member</h2>
+      <form id="member-form">
+        <label for="name">Member name</label>
+        <input id="name" name="name" required maxlength="80" autocomplete="off">
+        <label for="class-year">Class year</label>
+        <input id="class-year" name="class_year" type="number" min="2000" max="2100" value="2028" required>
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="developer">Developer</option>
+          <option value="designer">Designer</option>
+        </select>
+        <button type="submit" class="primary-button">Add member</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+    <section>
+      <div class="list-heading"><h2>Members</h2><button id="reload" type="button">Reload list</button></div>
+      <ul id="list"></ul>
+    </section>
+    <footer>Fictional data only · stored in SQLite on this server</footer>
+  </main>
+  <script type="module" src="/members.ts"></script>
+</body>
+</html>

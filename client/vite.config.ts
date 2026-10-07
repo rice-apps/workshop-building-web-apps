@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        members: resolve(import.meta.dirname, "index.html"),
+        members: resolve(import.meta.dirname, "members.html"),
         projects: resolve(import.meta.dirname, "projects.html"),
       },
     },

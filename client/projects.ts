@@ -1,33 +1,62 @@
-import { listProjects, createProject } from "./api";
-import {
-  onSubmit,
-  render,
-  readName,
-  message,
-  storageLabel,
-  reload,
-} from "./ui";
+import { listProjects, addProject } from "./projects-api";
+
+
 const form = document.querySelector<HTMLFormElement>("#project-form")!;
-document.querySelector("#stage")!.textContent =
-  "Completed reference: POST, then GET the saved list.";
+const button = form.querySelector<HTMLButtonElement>("button")!;
+const list = document.querySelector<HTMLUListElement>("#list")!;
+const status = document.querySelector<HTMLParagraphElement>("#status")!;
+let saving = false;
+
 async function loadProjects() {
-  render(await listProjects());
+  const rows = await listProjects();
+  list.replaceChildren();
+  for (const row of rows) {
+    const item = document.createElement("li");
+    item.textContent = row.name;
+    list.append(item);
+  }
+  if (rows.length === 0) {
+    const item = document.createElement("li");
+    item.textContent = "No projects yet.";
+    list.append(item);
+  }
 }
-onSubmit(form, async () => {
-  await createProject(readName(form));
-  form.reset(); // Insert succeeded. Do not invite a duplicate if the next GET fails.
+
+async function reload() {
   try {
     await loadProjects();
-    message("Project saved.");
+    status.textContent = "List loaded.";
   } catch {
-    message(
-      "Project saved, but list reload failed. Use Reload list; do not resubmit.",
-      true,
-    );
+    status.textContent = "Could not load projects. Check the server, then reload.";
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (saving) return;
+  saving = true;
+  button.disabled = true;
+  status.textContent = "Saving…";
+  try {
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    if (!name || [...name].length > 80) throw new Error("Enter a name between 1 and 80 characters.");
+    await addProject(name);
+    form.reset();
+    // The insert succeeded even if this subsequent list request fails.
+    try {
+      await loadProjects();
+      status.textContent = "Project saved.";
+    } catch {
+      status.textContent = "Saved, but list reload failed. Reload the list; do not resubmit.";
+    }
+  } catch (error) {
+    status.textContent = error instanceof Error ? error.message : "Could not save. Check the server.";
+  } finally {
+    saving = false;
+    button.disabled = false;
   }
 });
-document
-  .querySelector("#reload")!
-  .addEventListener("click", () => void reload(loadProjects));
-void storageLabel();
-void reload(loadProjects);
+
+document.querySelector("#reload")!.addEventListener("click", () => void reload());
+void reload();
