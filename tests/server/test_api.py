@@ -5,8 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "server"))
-from app import database
-from app.main import app
+import database
+from main import app
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def test_stub_and_working_reference(client):
 
 
 def test_unfinished_lower_layers(client):
-    from app import services
+    import services
     with pytest.raises(NotImplementedError):
         services.add_member("Demo", 2028, "designer")
     with pytest.raises(NotImplementedError):

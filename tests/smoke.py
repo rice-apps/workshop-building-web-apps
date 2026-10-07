@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory() as temporary:
     server = Path(temporary) / "server"
     shutil.copytree(ROOT / "server", server, ignore=shutil.ignore_patterns(".venv*", "__pycache__", ".env", "*.sqlite3*"))
     def start_api():
-        return subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app", "--app-dir", str(server), "--host", "127.0.0.1", "--port", "8000"], env={**os.environ, "WORKSHOP_DATABASE":str(Path(temporary) / "smoke.sqlite3")}, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--app-dir", str(server), "--host", "127.0.0.1", "--port", "8000"], env={**os.environ, "WORKSHOP_DATABASE":str(Path(temporary) / "smoke.sqlite3")}, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     api = start_api()
     vite = None
     try:

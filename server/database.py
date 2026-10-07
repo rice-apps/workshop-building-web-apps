@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 from uuid import uuid4
 
-DATABASE_PATH = Path(os.getenv("WORKSHOP_DATABASE", Path(__file__).resolve().parents[1] / "workshop.sqlite3"))
+DATABASE_PATH = Path(os.getenv("WORKSHOP_DATABASE", Path(__file__).with_name("workshop.sqlite3")))
 
 
 @contextmanager
@@ -54,9 +54,14 @@ def list_members(role=None):
 
 
 def add_member(name, class_year, role):
-    # TODO 4: create an ID, INSERT name/class_year/role, and return the saved row.
-    # Use add_project below as the reference. Use ? placeholders for values.
-    # The members table and connection helper are already supplied.
+    # SQL is supplied: each ? receives one value when you execute the query.
+    insert_query = "INSERT INTO members (id, name, class_year, role) VALUES (?, ?, ?, ?)"
+    select_query = "SELECT * FROM members WHERE id = ?"
+
+    # TODO: generate an ID and use connect() to open a database connection.
+    # Execute insert_query with (member_id, name, class_year, role).
+    # Execute select_query with (member_id,), fetch the row, and return dict(row).
+    # Use add_project below as the reference; no SQL writing is required.
     raise NotImplementedError("Add Member database insert is not implemented yet.")
 
 

@@ -5,8 +5,8 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from . import database
-from . import services
+import database
+import services
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, strict=True)]
 Role = Literal["developer", "designer"]
@@ -24,8 +24,10 @@ class MemberInput(ProjectInput):
 
 @asynccontextmanager
 async def lifespan(app):
+    # Before serving requests: ensure the tables and sample project exist.
     database.initialize()
     yield
+    # After yield would be shutdown cleanup; none is needed here.
 
 
 app = FastAPI(title="RiceApps", lifespan=lifespan)

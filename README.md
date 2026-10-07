@@ -10,8 +10,8 @@ The form, input validation, list rendering, HTTP route, and SQLite schema are su
 | --- | --- | --- |
 | Page | `client/event-handlers/members.ts` | Submit the member, then refresh the list |
 | HTTP client | `client/api/members-api.ts` | POST JSON and read the response |
-| Service | `server/app/services.py` | Delegate to the database function |
-| Storage | `server/app/database.py` | Insert a member and return the row |
+| Service | `server/services.py` | Delegate to the database function |
+| Storage | `server/database.py` | Execute the supplied SQL and return the row |
 
 Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The unfinished form keeps its values and says nothing was saved. Calling the unfinished endpoint directly returns **501**, never a false 201. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
 
@@ -32,7 +32,7 @@ Start the backend from the repository root in one terminal:
 
 ```sh
 source server/.venv/bin/activate
-python -m uvicorn app.main:app --app-dir server --reload --host 127.0.0.1 --port 8000
+python -m uvicorn main:app --app-dir server --reload --host 127.0.0.1 --port 8000
 ```
 
 In another terminal:
@@ -54,7 +54,9 @@ client/
   api/               Backend fetch calls
   types.ts           Shared types
 server/
-  app/               main.py, services.py, database.py
+  main.py            HTTP handlers and validation
+  services.py        Application operations
+  database.py        SQLite setup and queries
   requirements.txt
 tests/
   client/            TypeScript page tests
@@ -68,7 +70,7 @@ Run npm commands from the repository root. All tests live together; the client a
 
 ```text
 ui/members.html → event-handlers/members.ts → api/members-api.ts → HTTP
-  → server/app/main.py → services.py → database.py → SQLite
+  → server/main.py → services.py → database.py → SQLite
   ← JSON response ← saved row
 ```
 
