@@ -4,7 +4,7 @@ import logging
 import sqlite3
 from typing import Annotated, Literal
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 import database
 import services
@@ -53,15 +53,12 @@ def list_members(role: Role | None = None):
 
 @app.post("/api/members")
 def add_member(member: MemberInput):
-    # TODO: replace this diagnostic stub with a call to services.add_member.
+    # TODO 3: replace this diagnostic stub with a call to services.add_member.
     # Pass member.name, member.class_year, and member.role.
-    # Return the saved member in a JSONResponse with status_code=201.
+    # After the service finishes, return Response(status_code=201), with no body.
     # Use add_project below as the reference. This stub does not save anything.
     logging.getLogger("uvicorn.error").info("Member created")
-    return JSONResponse(
-        status_code=200,
-        content={"message": "Member created"},
-    )
+    return Response(status_code=200)
 
 
 @app.get("/api/projects")
@@ -71,8 +68,5 @@ def list_projects():
 
 @app.post("/api/projects")
 def add_project(project: ProjectInput):
-    saved_project = services.add_project(project.name)
-    return JSONResponse(
-        status_code=201,
-        content=saved_project,
-    )
+    services.add_project(project.name)
+    return Response(status_code=201)

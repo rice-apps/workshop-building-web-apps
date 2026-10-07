@@ -27,10 +27,11 @@ export async function listMembers(role?: Role): Promise<Member[]> {
   return members;
 }
 
-// NewMember contains the fields to save. The result is one saved Member.
-export async function addMember(member: NewMember) {
+// NewMember contains the fields to save. No response data is needed.
+export async function addMember(member: NewMember): Promise<void> {
   console.log(member);
 
   // TODO 2: POST member as JSON to /api/members.
+  // Check response.ok; do not call response.json() on an empty response.
   // Use addProject in projects-api.ts as the reference.
 }

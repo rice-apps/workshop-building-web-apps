@@ -8,12 +8,12 @@ The form, input validation, list rendering, service function, and SQLite schema 
 
 | Layer | File | Your task |
 | --- | --- | --- |
-| Page | `client/event-handlers/members.ts` | Submit the member, then refresh the list |
-| HTTP client | `client/api/members-api.ts` | POST JSON and read the response |
+| Page | `client/event-handlers/members.ts` | Send the already displayed member; clear inputs after success |
+| HTTP client | `client/api/members-api.ts` | POST JSON and check the response status (no body) |
 | HTTP handler | `server/main.py` | Replace the logging stub with a service call and explicit 201 response |
-| Storage | `server/database.py` | Execute the supplied SQL and return the row |
+| Storage | `server/database.py` | Execute the supplied INSERT; no SELECT or return value |
 
-Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The unfinished form keeps its values and says nothing was saved. The backend stub logs “Member created” and returns **200**, but does not insert a row. Refresh the list to observe that nothing was saved. After wiring the HTTP handler to the supplied service, the database TODO raises a 501 until implemented. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
+Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The member handler already displays the entry locally; TODO 1 sends it to the server. The backend stub logs “Member created” and returns **200**, but does not insert a row. Refresh the list to observe that nothing was saved. After wiring the HTTP handler to the supplied service, the database TODO raises a 501 until implemented. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
 
 After implementation, add a fictional member, reload in another browser using the same backend, and restart Python to verify persistence. The annotated full solution is available in Git history at [`f826468`](https://github.com/rice-apps/workshop-building-web-apps/tree/f826468); no checkpoint scripts or branch switching required.
 
@@ -71,14 +71,16 @@ Run npm commands from the repository root. All tests live together; the client a
 ```text
 ui/members.html → event-handlers/members.ts → api/members-api.ts → HTTP
   → server/main.py → services.py → database.py → SQLite
-  ← JSON response ← saved row
+  ← Empty POST response ← insertion completes
 ```
 
 Projects follows the same path. HTML defines the form; TypeScript handles events and rendering; `*-api.ts` sends requests. `main.py` validates HTTP input, `services.py` defines application operations, and `database.py` owns SQL. Services simply delegate for now: there are no extra business rules.
 
-GET lists records; the completed Projects POST creates one and returns 201. The member diagnostic POST returns 200 without saving; the completed member handler should explicitly return 201. Try `/api/members?role=designer` for a query-parameter example. Invalid input returns 422; database failure returns 503. Browser checks help usability; server validation remains authoritative.
+GET lists records; the completed Projects POST creates one and returns 201 with an empty body. The member diagnostic POST returns 200 without saving; the completed member handler should explicitly return 201. Try `/api/members?role=designer` for a query-parameter example. Invalid input returns 422; database failure returns 503. Browser checks help usability; server validation remains authoritative.
 
 SQLite is the only database. It creates `server/workshop.sqlite3` and one fictional sample project on first startup. No account, key, or environment file is needed. The database file is ignored by Git. Two browser windows using this same backend share data; reload to see changes. Stop/restart the backend to verify persistence. Separate laptops running separate backends have separate databases.
+
+Both pages display new entries immediately (optimistic rendering), without a GET after saving. The supplied handler removes the optimistic entry on a failed save. GET still runs when opening the page or clicking Reload list. Add operations return no data; list operations return rows.
 
 Pending submissions are blocked from double-clicking. Names are not unique; deliberate repeated submissions create separate records. If a network failure leaves an uncertain result, reload before retrying.
 
@@ -95,4 +97,4 @@ npm run build
 python tests/smoke.py
 ```
 
-Tests cover the diagnostic member contract (200, log message, and no insert), member listing/filtering, validation, working Projects add/list, errors, and real HTTP through Vite with a backend restart. When you finish Add Member, replace the stub assertions with 201/saved-row checks. Smoke tests use a temporary SQLite file, not your data. The earlier workshop/checkpoints remain available in Git history at `9971311`.
+Tests cover the diagnostic member contract (200, log message, and no insert), member listing/filtering, validation, working Projects add/list, errors, and real HTTP through Vite with a backend restart. When you finish Add Member, replace the stub assertions with 201/empty-body checks plus a GET verifying persistence. Smoke tests use a temporary SQLite file, not your data. The earlier workshop/checkpoints remain available in Git history at `9971311`.

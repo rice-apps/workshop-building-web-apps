@@ -56,11 +56,10 @@ def list_members(role=None):
 def add_member(name, class_year, role):
     # SQL is supplied: each ? receives one value when you execute the query.
     insert_query = "INSERT INTO members (id, name, class_year, role) VALUES (?, ?, ?, ?)"
-    select_query = "SELECT * FROM members WHERE id = ?"
 
-    # TODO: generate an ID and use connect() to open a database connection.
+    # TODO 4: generate an ID and use connect() to open a database connection.
     # Execute insert_query with (member_id, name, class_year, role).
-    # Execute select_query with (member_id,), fetch the row, and return dict(row).
+    # No SELECT or return value is needed; the connection helper commits the insert.
     # Use add_project below as the reference; no SQL writing is required.
     raise NotImplementedError("Add Member database insert is not implemented yet.")
 
@@ -75,5 +74,3 @@ def add_project(name):
     project_id = str(uuid4())
     with connect() as connection:
         connection.execute("INSERT INTO projects (id, name) VALUES (?, ?)", (project_id, name))
-        row = connection.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
-        return dict(row)
