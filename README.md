@@ -37,6 +37,6 @@ Then start the backend:
 python -m uvicorn main:app --app-dir server --reload --host localhost --port 8000
 ```
 
-Leave this terminal running too. You can explore the API at [localhost:8000/docs](http://localhost:8000/docs). SQLite sets itself up automatically; no database account or keys are needed.
+Leave this terminal running too. SQLite sets itself up automatically; no database account or keys are needed.
 
 On Windows, use `py -m venv server/.venv` and activate with `server\.venv\Scripts\Activate.ps1` in PowerShell. The pip and startup commands are the same.
