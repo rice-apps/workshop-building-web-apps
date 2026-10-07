@@ -35,7 +35,7 @@ On Windows, create the environment with `py -3.13 -m venv server/.venv` and use 
 ```text
 client/
   ui/                HTML pages and CSS
-  events/            Event handling and rendering
+  event-handlers/            Event handling and rendering
   api/               Backend fetch calls
   types.ts           Shared types
 server/
@@ -52,7 +52,7 @@ Run npm commands from the repository root. All tests live together; the client a
 ## Follow a request
 
 ```text
-ui/members.html → events/members.ts → api/members-api.ts → HTTP
+ui/members.html → event-handlers/members.ts → api/members-api.ts → HTTP
   → server/app/main.py → services.py → database.py → SQLite
   ← JSON response ← saved row
 ```

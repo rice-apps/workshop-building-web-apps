@@ -49,7 +49,7 @@ with tempfile.TemporaryDirectory() as temporary:
             for link in ("/ui/members.html", "/ui/projects.html", "/ui/styles.css"):
                 assert f'href="{link}"' in html.text
                 assert httpx.get(base + link).status_code == 200
-            script = f"/events/{page}.ts"
+            script = f"/event-handlers/{page}.ts"
             assert f'src="{script}"' in html.text
             assert httpx.get(base + script).status_code == 200
             assert httpx.get(base + f"/api/{page}-api.ts").status_code == 200

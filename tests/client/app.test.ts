@@ -22,7 +22,7 @@ for (const page of ["members", "projects"]) {
       if (failGet) throw new Error("offline");
       return new Response(JSON.stringify(rows));
     };
-    await import(`../../client/events/${page}.ts`);
+    await import(`../../client/event-handlers/${page}.ts`);
     await tick();
     const status = () => doc.querySelector("#status")!.textContent!;
     const form = doc.querySelector("form")!;
