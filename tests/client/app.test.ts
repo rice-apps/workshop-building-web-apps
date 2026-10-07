@@ -6,7 +6,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 
 for (const page of ["members", "projects"]) {
   test(`${page}: list, add, double submit, validation, and errors`, async () => {
-    const dom = new JSDOM(readFileSync(`${page}.html`, "utf8"));
+    const dom = new JSDOM(readFileSync(`client/pages/${page}.html`, "utf8"));
     Object.assign(globalThis, {document: dom.window.document, FormData: dom.window.FormData});
     const doc = dom.window.document;
     const rows: unknown[] = [];
@@ -22,7 +22,7 @@ for (const page of ["members", "projects"]) {
       if (failGet) throw new Error("offline");
       return new Response(JSON.stringify(rows));
     };
-    await import(`../${page}.ts`);
+    await import(`../../client/src/pages/${page}.ts`);
     await tick();
     const status = () => doc.querySelector("#status")!.textContent!;
     const form = doc.querySelector("form")!;

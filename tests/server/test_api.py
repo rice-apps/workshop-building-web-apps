@@ -4,9 +4,9 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
-import database
-from main import app
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "server"))
+from app import database
+from app.main import app
 
 
 @pytest.fixture

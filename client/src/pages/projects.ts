@@ -1,33 +1,33 @@
-import { listMembers, addMember } from "./members-api";
-import type { Role } from "./types";
+import { listProjects, addProject } from "../api/projects-api";
 
-const form = document.querySelector<HTMLFormElement>("#member-form")!;
+
+const form = document.querySelector<HTMLFormElement>("#project-form")!;
 const button = form.querySelector<HTMLButtonElement>("button")!;
 const list = document.querySelector<HTMLUListElement>("#list")!;
 const status = document.querySelector<HTMLParagraphElement>("#status")!;
 let saving = false;
 
-async function loadMembers() {
-  const rows = await listMembers();
+async function loadProjects() {
+  const rows = await listProjects();
   list.replaceChildren();
   for (const row of rows) {
     const item = document.createElement("li");
-    item.textContent = `${row.name} · ${row.class_year} · ${row.role}`;
+    item.textContent = row.name;
     list.append(item);
   }
   if (rows.length === 0) {
     const item = document.createElement("li");
-    item.textContent = "No members yet.";
+    item.textContent = "No projects yet.";
     list.append(item);
   }
 }
 
 async function reload() {
   try {
-    await loadMembers();
+    await loadProjects();
     status.textContent = "List loaded.";
   } catch {
-    status.textContent = "Could not load members. Check the server, then reload.";
+    status.textContent = "Could not load projects. Check the server, then reload.";
   }
 }
 
@@ -41,14 +41,12 @@ form.addEventListener("submit", async (event) => {
     const data = new FormData(form);
     const name = String(data.get("name") ?? "").trim();
     if (!name || [...name].length > 80) throw new Error("Enter a name between 1 and 80 characters.");
-    const classYear = Number(data.get("class_year"));
-    const role = data.get("role") as Role;
-    await addMember({ name, class_year: classYear, role });
+    await addProject(name);
     form.reset();
     // The insert succeeded even if this subsequent list request fails.
     try {
-      await loadMembers();
-      status.textContent = "Member saved.";
+      await loadProjects();
+      status.textContent = "Project saved.";
     } catch {
       status.textContent = "Saved, but list reload failed. Reload the list; do not resubmit.";
     }

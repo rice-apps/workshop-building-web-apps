@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 from uuid import uuid4
 
-DATABASE_PATH = Path(os.getenv("WORKSHOP_DATABASE", Path(__file__).with_name("workshop.sqlite3")))
+DATABASE_PATH = Path(os.getenv("WORKSHOP_DATABASE", Path(__file__).resolve().parents[1] / "workshop.sqlite3"))
 
 
 @contextmanager

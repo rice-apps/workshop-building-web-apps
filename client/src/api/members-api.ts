@@ -1,4 +1,4 @@
-import type { Member, NewMember, Role } from "./types";
+import type { Member, NewMember, Role } from "../types";
 
 export async function listMembers(role?: Role): Promise<Member[]> {
   const response = await fetch(role ? `/api/members?role=${encodeURIComponent(role)}` : "/api/members");

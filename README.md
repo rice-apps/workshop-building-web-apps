@@ -10,7 +10,6 @@ Tested with Python 3.13.12 and Node 25.3.0 (npm 11.7.0).
 python3.13 -m venv server/.venv
 source server/.venv/bin/activate
 python -m pip install -r server/requirements.txt
-cd client
 npm ci
 ```
 
@@ -18,25 +17,45 @@ Start the backend from the repository root in one terminal:
 
 ```sh
 source server/.venv/bin/activate
-python -m uvicorn main:app --app-dir server --reload --host 127.0.0.1 --port 8000
+python -m uvicorn app.main:app --app-dir server --reload --host 127.0.0.1 --port 8000
 ```
 
 In another terminal:
 
 ```sh
-cd client
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173/members.html** or **http://127.0.0.1:5173/projects.html**. API docs: http://127.0.0.1:8000/docs.
+Open **http://127.0.0.1:5173/pages/members.html** or **http://127.0.0.1:5173/pages/projects.html**. API docs: http://127.0.0.1:8000/docs.
 
 On Windows, create the environment with `py -3.13 -m venv server/.venv` and use `server\.venv\Scripts\python.exe` instead of activating it. Run the same pip/uvicorn commands with that interpreter. Windows setup has not been verified locally.
+
+## Folder layout
+
+```text
+client/
+  pages/             HTML pages
+  src/
+    pages/           Event handling and rendering
+    api/             Backend fetch calls
+    types.ts
+    styles.css
+server/
+  app/               main.py, services.py, database.py
+  requirements.txt
+tests/
+  client/            TypeScript page tests
+  server/            Python API tests
+  smoke.py           Full-app HTTP and persistence check
+```
+
+Run npm commands from the repository root. All tests live together; the client and server subfolders use different languages/runners. Frontend tool configuration stays in `client/`.
 
 ## Follow a request
 
 ```text
-members.html → members.ts → members-api.ts → HTTP
-  → server/main.py → services.py → database.py → SQLite
+pages/members.html → src/pages/members.ts → src/api/members-api.ts → HTTP
+  → server/app/main.py → services.py → database.py → SQLite
   ← JSON response ← saved row
 ```
 
@@ -56,10 +75,8 @@ From root with the Python environment active and dev servers stopped:
 
 ```sh
 python -m pytest -q tests
-cd client
 npm test
 npm run build
-cd ..
 python tests/smoke.py
 ```
 

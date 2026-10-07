@@ -5,8 +5,8 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-import database
-import services
+from . import database
+from . import services
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, strict=True)]
 Role = Literal["developer", "designer"]

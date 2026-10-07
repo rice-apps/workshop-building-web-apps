@@ -2,7 +2,7 @@
 
 There are no extra business rules yet, so these functions simply delegate.
 """
-import database
+from . import database
 
 
 def list_members(role=None):
