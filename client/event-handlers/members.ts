@@ -36,14 +36,16 @@ async function handleSubmit() {
     role: roleInput.value as Role,
   };
 
-  // Add this new member to our list UI!
+  // Show the member immediately, before waiting for the server.
   const item = document.createElement("li");
   item.textContent = newMember.name + " · " + newMember.class_year + " · " + newMember.role;
   list.append(item);
 
-  // TODO 1: Call addMember(newMember) to POST the member to the server
-  //  Clear the input fields afterwards.
-  //  See projects.ts for reference.
+  // Save it on the server. The response has no data to read.
+  await addMember(newMember);
+
+  // Clear the input fields afterwards.
+  nameInput.value = "";
 
   console.log("Member saved.");
 }

@@ -31,7 +31,17 @@ export async function listMembers(role?: Role): Promise<Member[]> {
 export async function addMember(member: NewMember): Promise<void> {
   console.log(member);
 
-  // TODO 2: POST member as JSON to /api/members.
-  // Check response.ok; do not call response.json() on an empty response.
-  // Use addProject in projects-api.ts as the reference.
+  const requestBody = JSON.stringify(member);
+
+  const response = await fetch("/api/members", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: requestBody,
+  });
+
+  if (!response.ok) {
+    console.error("Failed to save member");
+  }
 }

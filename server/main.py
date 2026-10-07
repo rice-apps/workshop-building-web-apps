@@ -53,12 +53,8 @@ def list_members(role: Role | None = None):
 
 @app.post("/api/members")
 def add_member(member: MemberInput):
-    # TODO 3: replace this diagnostic stub with a call to services.add_member.
-    # Pass member.name, member.class_year, and member.role.
-    # After the service finishes, return Response(status_code=201), with no body.
-    # Use add_project below as the reference. This stub does not save anything.
-    logging.getLogger("uvicorn.error").info("Member created")
-    return Response(status_code=200)
+    services.add_member(member.name, member.class_year, member.role)
+    return Response(status_code=201)
 
 
 @app.get("/api/projects")
