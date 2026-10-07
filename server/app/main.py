@@ -37,6 +37,12 @@ def storage_error(request: Request, error: sqlite3.Error):
     return JSONResponse(status_code=503, content={"detail": "Database unavailable. Check the server's database file and permissions."})
 
 
+# Keep unfinished exercises honest: 501 means this feature is not implemented.
+@app.exception_handler(NotImplementedError)
+def unfinished_feature(request: Request, error: NotImplementedError):
+    return JSONResponse(status_code=501, content={"detail": str(error)})
+
+
 @app.get("/api/members")
 def list_members(role: Role | None = None):
     return services.list_members(role)
@@ -44,6 +50,7 @@ def list_members(role: Role | None = None):
 
 @app.post("/api/members", status_code=201)
 def add_member(member: MemberInput):
+    # HTTP wiring and validation are supplied; implement the service below this boundary.
     return services.add_member(member.name, member.class_year, member.role)
 
 

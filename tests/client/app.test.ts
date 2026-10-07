@@ -32,6 +32,15 @@ for (const page of ["members", "projects"]) {
     input.value=" "; submit(); await tick();
     assert.match(status(), /1 and 80/);
     input.value="<img src=x>"; submit(); submit(); await tick(); await tick();
+    if (page === "members") {
+      assert.equal(posts, 0);
+      assert.match(status(), /not implemented yet. Nothing was saved/);
+      assert.equal(input.value, "<img src=x>");
+      assert.equal(form.querySelector("button")!.disabled, false);
+      const { addMember } = await import("../../client/api/members-api.ts");
+      await assert.rejects(addMember({name:"Demo", class_year:2028, role:"designer"}), /not implemented/);
+      return;
+    }
     assert.equal(posts,1);
     assert.match(status(), /saved/);
     assert.equal(doc.querySelector("#list img"),null);

@@ -29,29 +29,8 @@ export async function listMembers(role?: Role): Promise<Member[]> {
 
 // NewMember contains the fields to save. The result is one saved Member.
 export async function addMember(member: NewMember): Promise<Member> {
-  // Convert the JavaScript object into JSON text for the request body.
-  const requestBody = JSON.stringify(member);
-
-  // POST asks the server to create a record. The header identifies JSON.
-  const response = await fetch("/api/members", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: requestBody,
-  });
-
-  // 422 means the server rejected the submitted values.
-  // Throwing an error lets the page handler display it to the user.
-  if (!response.ok) {
-    if (response.status === 422) {
-      throw new Error("Check the form values and try again.");
-    } else {
-      throw new Error("Could not save member (" + response.status + ").");
-    }
-  }
-
-  // The server returns the saved member, including its generated ID.
-  const savedMember: Member = await response.json();
-  return savedMember;
+  // TODO 2: POST member as JSON to /api/members.
+  // Check response.ok, then return the saved member from response.json().
+  // Use addProject in projects-api.ts as the reference.
+  throw new Error("Add Member request is not implemented yet.");
 }

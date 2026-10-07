@@ -54,14 +54,10 @@ def list_members(role=None):
 
 
 def add_member(name, class_year, role):
-    member_id = str(uuid4())
-    with connect() as connection:
-        connection.execute(
-            "INSERT INTO members (id, name, class_year, role) VALUES (?, ?, ?, ?)",
-            (member_id, name, class_year, role),
-        )
-        row = connection.execute("SELECT * FROM members WHERE id = ?", (member_id,)).fetchone()
-        return dict(row)
+    # TODO 4: create an ID, INSERT name/class_year/role, and return the saved row.
+    # Use add_project below as the reference. Use ? placeholders for values.
+    # The members table and connection helper are already supplied.
+    raise NotImplementedError("Add Member database insert is not implemented yet.")
 
 
 def list_projects():

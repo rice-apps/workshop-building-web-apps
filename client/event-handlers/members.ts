@@ -81,18 +81,11 @@ async function handleSubmit(event: SubmitEvent) {
       role: role,
     };
 
-    // Wait for the server to save before clearing the form.
-    await addMember(newMember);
-    form.reset();
+    // TODO 1: send newMember with addMember, then reload the saved list.
+    // Clear the form only after saving succeeds. See projects.ts for the pattern.
+    // Replace this placeholder when you implement the flow.
+    throw new Error("Add Member is not implemented yet. Nothing was saved.");
 
-    // Fetch the saved list rather than assuming what the database contains.
-    try {
-      await loadMembers();
-      status.textContent = "Member saved.";
-    } catch {
-      // Saving already succeeded. Retrying the submit could create a duplicate.
-      status.textContent = "Saved, but list reload failed. Reload the list; do not resubmit.";
-    }
   } catch (error) {
     // Keep the form's values so the user can fix a failed submission.
     if (error instanceof Error) {

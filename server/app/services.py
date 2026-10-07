@@ -10,7 +10,9 @@ def list_members(role=None):
 
 
 def add_member(name, class_year, role):
-    return database.add_member(name, class_year, role)
+    # TODO 3: pass these values to database.add_member and return its result.
+    # Use add_project below as the reference. Keep SQL in database.py.
+    raise NotImplementedError("Add Member service is not implemented yet.")
 
 
 def list_projects():

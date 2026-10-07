@@ -55,16 +55,19 @@ with tempfile.TemporaryDirectory() as temporary:
             assert httpx.get(base + f"/api/{page}-api.ts").status_code == 200
         module = httpx.get(base + "/api/members-api.ts")
         assert module.status_code == 200 and "export" in module.text, "Proxy must not intercept TypeScript modules"
-        assert httpx.post(base + "/api/projects", json={"name":"Demo Smoke Project"}).status_code == 201
+        project = httpx.post(base + "/api/projects", json={"name":"Demo Smoke Project"})
+        assert project.status_code == 201
         row = httpx.post(base + "/api/members", json={"name":"Demo Smoke Member", "role":"designer", "class_year":2029})
-        assert row.status_code == 201
+        assert row.status_code == 501
         with httpx.Client() as second_client:
-            assert second_client.get(base + "/api/members?role=designer").json() == [row.json()]
+            assert second_client.get(base + "/api/members?role=designer").json() == []
+            assert project.json() in second_client.get(base + "/api/projects").json()
         stop(api)
         api = start_api()
         ready("http://127.0.0.1:8000/api/projects", api)
-        assert httpx.get(base + "/api/members").json() == [row.json()]
-        print("Live HTTP passed: JS module, proxy, Projects, member insert, second client, backend restart.")
+        assert httpx.get(base + "/api/members").json() == []
+        assert project.json() in httpx.get(base + "/api/projects").json()
+        print("Live HTTP passed: JS module, proxy, Projects, unfinished member 501/no insert, second client, backend restart.")
     finally:
         stop(api)
         if vite is not None:
