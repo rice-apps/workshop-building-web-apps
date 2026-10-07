@@ -27,7 +27,7 @@ export async function addProject(name: string): Promise<void> {
   const requestBody = JSON.stringify(newProject);
 
   // POST asks the server to create a record. The header identifies JSON.
-  const response = await fetch("/api/projects", {
+  await fetch("/api/projects", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,8 +35,5 @@ export async function addProject(name: string): Promise<void> {
     body: requestBody,
   });
 
-  // Only check the status: the successful response has no JSON body.
-  if (!response.ok) {
-    throw new Error("Could not save project (" + response.status + ").");
-  }
+  // The successful response has no body to read.
 }

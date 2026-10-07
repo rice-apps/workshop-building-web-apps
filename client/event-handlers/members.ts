@@ -9,80 +9,43 @@ const yearInput = document.getElementById("class-year") as HTMLInputElement;
 const roleInput = document.getElementById("role") as HTMLSelectElement;
 const submitButton = document.getElementById("add-member") as HTMLButtonElement;
 const reloadButton = document.getElementById("reload") as HTMLButtonElement;
-const status = document.getElementById("status") as HTMLParagraphElement;
-let saving = false;
-
 const list = document.getElementById("list") as HTMLUListElement;
 
 // "async" lets us await the server response without blocking the page.
 async function loadMembers() {
-  if (saving) {
-    return;
-  }
-  submitButton.disabled = true;
-  reloadButton.disabled = true;
-  try {
-    const members = await listMembers();
+  const members = await listMembers();
 
-    // Replace the old list with the records returned by the server.
-    list.replaceChildren();
-    for (const member of members) {
-      const item = document.createElement("li");
-      // textContent displays names as text, never as HTML.
-      item.textContent = member.name + " · " + member.class_year + " · " + member.role;
-      list.append(item);
-    }
-  } catch {
-    status.textContent = "Could not load members. Check the server and reload.";
-  } finally {
-    submitButton.disabled = false;
-    reloadButton.disabled = false;
+  // Replace the old list with the records returned by the server.
+  list.replaceChildren();
+  for (const member of members) {
+    const item = document.createElement("li");
+    // textContent displays names as text, never as HTML.
+    item.textContent = member.name + " · " + member.class_year + " · " + member.role;
+    list.append(item);
   }
 }
 
 async function handleSubmit() {
-  if (saving) {
-    return;
-  }
+  console.log("Saving…");
 
-  const name = nameInput.value.trim();
-  if (name.length === 0 || Array.from(name).length > 80) {
-    status.textContent = "Enter a name between 1 and 80 characters.";
-    return;
-  }
+  // Construct our NewMember object to send to the server.
+  // These property names match the JSON fields expected by the Python API.
   const newMember: NewMember = {
-    name: name,
+    name: nameInput.value,
     class_year: Number(yearInput.value),
     role: roleInput.value as Role,
   };
 
-  saving = true;
-  submitButton.disabled = true;
-  reloadButton.disabled = true;
-
-  // Optimistic rendering: show the entry before waiting for the server.
+  // Add this new member to our list UI!
   const item = document.createElement("li");
   item.textContent = newMember.name + " · " + newMember.class_year + " · " + newMember.role;
   list.append(item);
-  status.textContent = "Saving…";
 
-  try {
-    // TODO 1: await addMember(newMember), then clear the input fields.
-    // Use projects.ts as the reference. Do not fetch the list again here.
-    status.textContent = "Member added locally. Complete TODO 1 to send it.";
-  } catch (error) {
-    // Undo the optimistic entry if the request fails. Keep the inputs for retry.
-    item.remove();
-    if (error instanceof Error) {
-      status.textContent = error.message;
-    } else {
-      status.textContent = "Could not save. Check the server.";
-    }
-  } finally {
-    saving = false;
-    submitButton.disabled = false;
-    reloadButton.disabled = false;
-  }
+  // TODO 1: Call addMember(newMember) to POST the member to the server
+  //  Clear the input fields afterwards.
+  //  See projects.ts for reference.
+
+  console.log("Member saved.");
 }
 
 // Connect the HTML controls to our functions.

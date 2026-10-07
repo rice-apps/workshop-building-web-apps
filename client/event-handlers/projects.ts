@@ -5,75 +5,38 @@ import { listProjects, addProject } from "../api/projects-api";
 const nameInput = document.getElementById("name") as HTMLInputElement;
 const submitButton = document.getElementById("add-project") as HTMLButtonElement;
 const reloadButton = document.getElementById("reload") as HTMLButtonElement;
-const status = document.getElementById("status") as HTMLParagraphElement;
-let saving = false;
-
 const list = document.getElementById("list") as HTMLUListElement;
 
-// "async" lets us await the server response without blocking the page.
+// "async" allows us to use "await" to wait for an HTTP request to finish.
 async function loadProjects() {
-  if (saving) {
-    return;
-  }
-  submitButton.disabled = true;
-  reloadButton.disabled = true;
-  try {
-    const projects = await listProjects();
+  const projects = await listProjects();
 
-    // Replace the old list with the records returned by the server.
-    list.replaceChildren();
-    for (const project of projects) {
-      const item = document.createElement("li");
-      // textContent displays names as text, never as HTML.
-      item.textContent = project.name;
-      list.append(item);
-    }
-  } catch {
-    status.textContent = "Could not load projects. Check the server and reload.";
-  } finally {
-    submitButton.disabled = false;
-    reloadButton.disabled = false;
+  // Replace the old list with the records returned by the server.
+  list.replaceChildren();
+  for (const project of projects) {
+    const item = document.createElement("li");
+    // textContent displays names as text, never as HTML.
+    item.textContent = project.name;
+    list.append(item);
   }
 }
 
 async function handleSubmit() {
-  if (saving) {
-    return;
-  }
+  console.log("Saving…");
 
-  const name = nameInput.value.trim();
-  if (name.length === 0 || Array.from(name).length > 80) {
-    status.textContent = "Enter a name between 1 and 80 characters.";
-    return;
-  }
+  const name = nameInput.value;
 
-  saving = true;
-  submitButton.disabled = true;
-  reloadButton.disabled = true;
-
-  // Optimistic rendering: show the entry before waiting for the server.
+  // Show the project immediately, before waiting for the server.
   const item = document.createElement("li");
   item.textContent = name;
   list.append(item);
-  status.textContent = "Saving…";
 
-  try {
-    await addProject(name);
-    nameInput.value = "";
-    status.textContent = "Project saved.";
-  } catch (error) {
-    // Undo the optimistic entry if the request fails. Keep the inputs for retry.
-    item.remove();
-    if (error instanceof Error) {
-      status.textContent = error.message;
-    } else {
-      status.textContent = "Could not save. Check the server.";
-    }
-  } finally {
-    saving = false;
-    submitButton.disabled = false;
-    reloadButton.disabled = false;
-  }
+  // Save it on the server. The response has no data to read.
+  await addProject(name);
+
+  // Clear the input fields afterwards.
+  nameInput.value = "";
+  console.log("Project saved.");
 }
 
 // Connect the HTML controls to our functions.
