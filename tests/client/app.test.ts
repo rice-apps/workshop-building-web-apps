@@ -2,55 +2,66 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
-const tick = () => new Promise(resolve => setTimeout(resolve, 20));
+const tick = () => new Promise(resolve => setTimeout(resolve, 10));
 
 for (const page of ["members", "projects"]) {
-  test(`${page}: list, add, double submit, validation, and errors`, async () => {
+  test(`${page}: optimistic display, no refetch, and save failures`, async () => {
     const dom = new JSDOM(readFileSync(`client/ui/${page}.html`, "utf8"));
-    Object.assign(globalThis, {document: dom.window.document, FormData: dom.window.FormData});
+    Object.assign(globalThis, {document: dom.window.document});
     const doc = dom.window.document;
-    const rows: unknown[] = [];
-    let posts = 0, failPost = false, failGet = false;
+    let posts = 0, gets = 0;
+    let finishRequest: (response: Response) => void = () => {};
+    let failNetwork = false;
     globalThis.fetch = async (_url, options) => {
       if (options?.method === "POST") {
         posts++;
-        await tick();
-        if (failPost) return new Response("failure", {status:503});
-        rows.push({id:"demo", ...JSON.parse(String(options.body))});
-        return new Response(JSON.stringify(rows.at(-1)), {status:201});
+        if (failNetwork) throw new Error("Network unavailable");
+        return new Promise<Response>(resolve => { finishRequest = resolve; });
       }
-      if (failGet) throw new Error("offline");
-      return new Response(JSON.stringify(rows));
+      gets++;
+      return new Response("[]");
     };
     await import(`../../client/event-handlers/${page}.ts`);
     await tick();
-    const status = () => doc.querySelector("#status")!.textContent!;
-    const form = doc.querySelector("form")!;
     const input = doc.querySelector<HTMLInputElement>("#name")!;
-    const submit = () => form.dispatchEvent(new dom.window.Event("submit", {cancelable:true}));
-    assert.match(doc.querySelector("#list")!.textContent!, /No .* yet/);
-    input.value=" "; submit(); await tick();
+    const button = doc.querySelector<HTMLButtonElement>(`#add-${page.slice(0, -1)}`)!;
+    const list = doc.querySelector("#list")!;
+    const status = () => doc.querySelector("#status")!.textContent!;
+    assert.equal(gets, 1);
+    input.value=" "; button.click();
     assert.match(status(), /1 and 80/);
-    input.value="<img src=x>"; submit(); submit(); await tick(); await tick();
+    input.value="<img src=x>"; button.click();
+    // The item must appear before the server response is released.
+    assert.match(list.textContent!, /<img src=x>/);
+    assert.equal(list.querySelector("img"), null);
+    assert.equal(gets, 1);
     if (page === "members") {
+      // Preserve TODO 1: learners still need to connect the request.
       assert.equal(posts, 0);
-      assert.match(status(), /not implemented yet. Nothing was saved/);
-      assert.equal(input.value, "<img src=x>");
-      assert.equal(form.querySelector("button")!.disabled, false);
-      const { addMember } = await import("../../client/api/members-api.ts");
-      await assert.rejects(addMember({name:"Demo", class_year:2028, role:"designer"}), /not implemented/);
+      assert.match(status(), /locally/);
+      doc.querySelector<HTMLButtonElement>("#reload")!.click();
+      await tick();
+      assert.equal(list.children.length, 0);
       return;
     }
-    assert.equal(posts,1);
+    button.click();
+    assert.equal(posts, 1, "pending saves cannot be submitted twice");
+    finishRequest(new Response(null, {status:201}));
+    await tick();
     assert.match(status(), /saved/);
-    assert.equal(doc.querySelector("#list img"),null);
-    assert.match(doc.querySelector("#list")!.textContent!, /<img src=x>/);
-    failPost=true; input.value="Demo Retry"; submit(); await tick(); await tick();
+    assert.equal(input.value, "");
+    assert.equal(gets, 1, "successful POST does not refetch");
+    input.value="Demo failure"; button.click();
+    assert.equal(list.children.length, 2);
+    finishRequest(new Response(null, {status:503}));
+    await tick();
+    assert.equal(list.children.length, 1, "failed insert is rolled back in the UI");
+    assert.equal(input.value, "Demo failure");
     assert.match(status(), /503/);
-    assert.equal(input.value,"Demo Retry");
-    assert.equal(form.querySelector("button")!.disabled,false);
-    failPost=false; failGet=true; submit(); await tick(); await tick();
-    assert.match(status(), /Saved, but list reload failed/);
-    assert.equal(input.value,"");
+    assert.equal(button.disabled, false);
+    failNetwork=true; button.click(); await tick();
+    assert.equal(list.children.length, 1);
+    assert.match(status(), /Network unavailable/);
+    assert.equal(gets, 1);
   });
 }

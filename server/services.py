@@ -11,7 +11,7 @@ def list_members(role=None):
 
 def add_member(name, class_year, role):
     # This layer is supplied. The database layer owns the SQL.
-    return database.add_member(name, class_year, role)
+    database.add_member(name, class_year, role)
 
 
 def list_projects():
@@ -19,4 +19,4 @@ def list_projects():
 
 
 def add_project(name):
-    return database.add_project(name)
+    database.add_project(name)

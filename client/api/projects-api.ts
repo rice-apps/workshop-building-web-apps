@@ -18,8 +18,8 @@ export async function listProjects(): Promise<Project[]> {
   return projects;
 }
 
-// name: string means the input is text. The result is one saved Project.
-export async function addProject(name: string): Promise<Project> {
+// Promise<void> means we wait for completion, but no data comes back.
+export async function addProject(name: string): Promise<void> {
   // Build the object the server expects, then convert it to JSON text.
   const newProject = {
     name: name,
@@ -35,7 +35,8 @@ export async function addProject(name: string): Promise<Project> {
     body: requestBody,
   });
 
-  // The server returns the saved project, including its generated ID.
-  const savedProject: Project = await response.json();
-  return savedProject;
+  // Only check the status: the successful response has no JSON body.
+  if (!response.ok) {
+    throw new Error("Could not save project (" + response.status + ").");
+  }
 }
