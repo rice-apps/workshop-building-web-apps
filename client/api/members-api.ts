@@ -32,5 +32,8 @@ export async function addMember(member: NewMember): Promise<Member> {
   // TODO 2: POST member as JSON to /api/members.
   // Check response.ok, then return the saved member from response.json().
   // Use addProject in projects-api.ts as the reference.
-  throw new Error("Add Member request is not implemented yet.");
+  
+  // For demonstration purposes before TODO 2 is completed, we just return a 
+  // simulated member that hasn't actually been saved to the server.
+  return { id: String(Date.now()), created_at: new Date().toISOString(), ...member };
 }
