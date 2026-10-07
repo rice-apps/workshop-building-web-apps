@@ -28,12 +28,9 @@ export async function listMembers(role?: Role): Promise<Member[]> {
 }
 
 // NewMember contains the fields to save. The result is one saved Member.
-export async function addMember(member: NewMember): Promise<Member> {
+export async function addMember(member: NewMember) {
+  console.log(member);
+
   // TODO 2: POST member as JSON to /api/members.
-  // Check response.ok, then return the saved member from response.json().
   // Use addProject in projects-api.ts as the reference.
-  
-  // For demonstration purposes before TODO 2 is completed, we just return a 
-  // simulated member that hasn't actually been saved to the server.
-  return { id: String(Date.now()), created_at: new Date().toISOString(), ...member };
 }
