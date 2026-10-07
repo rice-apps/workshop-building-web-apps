@@ -13,7 +13,7 @@
     <section>
       <h2>Add a member</h2>
       <p>Workshop exercise: implement Add Member. The form does not save yet.</p>
-      <form id="member-form">
+      <div id="member-form">
         <label for="name">Member name</label>
         <input id="name" name="name" required maxlength="80" autocomplete="off">
         <label for="class-year">Class year</label>
@@ -23,8 +23,8 @@
           <option value="developer">Developer</option>
           <option value="designer">Designer</option>
         </select>
-        <button type="submit" class="primary-button">Add member</button>
-      </form>
+        <button id="add-member" class="primary-button">Add member</button>
+      </div>
       <p id="status" role="status" aria-live="polite"></p>
     </section>
     <section>

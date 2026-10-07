@@ -35,16 +35,6 @@ export async function addProject(name: string): Promise<Project> {
     body: requestBody,
   });
 
-  // 422 means the server rejected the submitted values.
-  // Throwing an error lets the page handler display it to the user.
-  if (!response.ok) {
-    if (response.status === 422) {
-      throw new Error("Check the form values and try again.");
-    } else {
-      throw new Error("Could not save project (" + response.status + ").");
-    }
-  }
-
   // The server returns the saved project, including its generated ID.
   const savedProject: Project = await response.json();
   return savedProject;
