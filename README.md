@@ -1,100 +1,42 @@
-# RiceApps web app
+# RiceApps web app workshop
 
-A small Members/Projects workshop app. Fork this repository and clone your fork. Projects and member listing work; Add Member is the exercise.
+Fork this repository, clone your fork, and open its folder in your editor. You’ll need Node.js and Python installed (tested with Node 25.3.0 and Python 3.13).
 
-## Implement Add Member
+[Workshop slideshow](https://docs.google.com/presentation/d/1N1Fj9UxtaxNMlwWbPzDnJNIxGYJKfJhGYPVaGS15m6E/edit?usp=sharing)
 
-The form, input validation, list rendering, service function, and SQLite schema are supplied. Complete the four small TODOs, using Projects as the reference:
+## Your Task
 
-| Layer | File | Your task |
-| --- | --- | --- |
-| Page | `client/event-handlers/members.ts` | Send the already displayed member; clear inputs after success |
-| HTTP client | `client/api/members-api.ts` | POST JSON and check the response status (no body) |
-| HTTP handler | `server/main.py` | Replace the logging stub with a service call and explicit 201 response |
-| Storage | `server/database.py` | Execute the supplied INSERT; no SELECT or return value |
+Build **Add Member**: someone should be able to enter a member’s name, class year, and role, add them to the roster, and still see them after refreshing the page.
 
-Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The member handler already displays the entry locally; TODO 1 sends it to the server. The backend stub logs “Member created” and returns **200**, but does not insert a row. Refresh the list to observe that nothing was saved. After wiring the HTTP handler to the supplied service, the database TODO raises a 501 until implemented. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
+Find the numbered `TODO` comments and replace them with your code. The completed Projects feature is there as a reference. Use fictional names while trying it out.
 
-After implementation, add a fictional member, reload in another browser using the same backend, and restart Python to verify persistence. The annotated full solution is available in Git history at [`f826468`](https://github.com/rice-apps/workshop-building-web-apps/tree/f826468); no checkpoint scripts or branch switching required.
+## 1. Run the frontend
 
-## Run locally
+Open a terminal in the repository’s root folder. Install dependencies, then start the frontend:
 
-Tested with Python 3.13.12 and Node 25.3.0 (npm 11.7.0).
+```sh
+npm ci
+npm run dev
+```
+
+Leave this terminal running. Open [Members](http://localhost:5173/ui/members.html) or [Projects](http://localhost:5173/ui/projects.html). Start the backend below so the pages can load and save data.
+
+## 2. Run the backend
+
+Open a **second terminal** in the same root folder. Create a Python environment and install dependencies:
 
 ```sh
 python3.13 -m venv server/.venv
 source server/.venv/bin/activate
 python -m pip install -r server/requirements.txt
-npm ci
 ```
 
-Start the backend from the repository root in one terminal:
+Then start the backend:
 
 ```sh
-source server/.venv/bin/activate
-python -m uvicorn main:app --app-dir server --reload --host 127.0.0.1 --port 8000
+python -m uvicorn main:app --app-dir server --reload --host localhost --port 8000
 ```
 
-In another terminal:
+Leave this terminal running too. You can explore the API at [localhost:8000/docs](http://localhost:8000/docs). SQLite sets itself up automatically; no database account or keys are needed.
 
-```sh
-npm run dev
-```
-
-Open **http://127.0.0.1:5173/ui/members.html** or **http://127.0.0.1:5173/ui/projects.html**. API docs: http://127.0.0.1:8000/docs.
-
-On Windows, create the environment with `py -3.13 -m venv server/.venv` and use `server\.venv\Scripts\python.exe` instead of activating it. Run the same pip/uvicorn commands with that interpreter. Windows setup has not been verified locally.
-
-## Folder layout
-
-```text
-client/
-  ui/                HTML pages and CSS
-  event-handlers/            Event handling and rendering
-  api/               Backend fetch calls
-  types.ts           Shared types
-server/
-  main.py            HTTP handlers and validation
-  services.py        Application operations
-  database.py        SQLite setup and queries
-  requirements.txt
-tests/
-  client/            TypeScript page tests
-  server/            Python API tests
-  smoke.py           Full-app HTTP and persistence check
-```
-
-Run npm commands from the repository root. All tests live together; the client and server subfolders use different languages/runners. Frontend tool configuration stays in `client/`.
-
-## Follow a request
-
-```text
-ui/members.html → event-handlers/members.ts → api/members-api.ts → HTTP
-  → server/main.py → services.py → database.py → SQLite
-  ← Empty POST response ← insertion completes
-```
-
-Projects follows the same path. HTML defines the form; TypeScript handles events and rendering; `*-api.ts` sends requests. `main.py` validates HTTP input, `services.py` defines application operations, and `database.py` owns SQL. Services simply delegate for now: there are no extra business rules.
-
-GET lists records; the completed Projects POST creates one and returns 201 with an empty body. The member diagnostic POST returns 200 without saving; the completed member handler should explicitly return 201. Try `/api/members?role=designer` for a query-parameter example. Invalid input returns 422; database failure returns 503. Browser checks help usability; server validation remains authoritative.
-
-SQLite is the only database. It creates `server/workshop.sqlite3` and one fictional sample project on first startup. No account, key, or environment file is needed. The database file is ignored by Git. Two browser windows using this same backend share data; reload to see changes. Stop/restart the backend to verify persistence. Separate laptops running separate backends have separate databases.
-
-Both pages display new entries immediately (optimistic rendering), without a GET after saving. The supplied handler removes the optimistic entry on a failed save. GET still runs when opening the page or clicking Reload list. Add operations return no data; list operations return rows.
-
-Pending submissions are blocked from double-clicking. Names are not unique; deliberate repeated submissions create separate records. If a network failure leaves an uncertain result, reload before retrying.
-
-This unauthenticated app is for local teaching with fictional data. Keep it on loopback; public deployment needs authentication, authorization, and operational safeguards first.
-
-## Checks
-
-From root with the Python environment active and dev servers stopped:
-
-```sh
-python -m pytest -q tests
-npm test
-npm run build
-python tests/smoke.py
-```
-
-Tests cover the diagnostic member contract (200, log message, and no insert), member listing/filtering, validation, working Projects add/list, errors, and real HTTP through Vite with a backend restart. When you finish Add Member, replace the stub assertions with 201/empty-body checks plus a GET verifying persistence. Smoke tests use a temporary SQLite file, not your data. The earlier workshop/checkpoints remain available in Git history at `9971311`.
+On Windows, use `py -3.13 -m venv server/.venv` and activate with `server\.venv\Scripts\Activate.ps1` in PowerShell. The pip and startup commands are the same.

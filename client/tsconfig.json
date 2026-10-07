@@ -17,7 +17,6 @@
     "event-handlers/**/*.ts",
     "api/**/*.ts",
     "types.ts",
-    "vite.config.ts",
-    "../tests/client/**/*.ts"
+    "vite.config.ts"
   ]
 }

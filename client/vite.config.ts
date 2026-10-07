@@ -5,7 +5,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    proxy: { "^/api/(members|projects)(?:[?]|$)": "http://127.0.0.1:8000" },
+    proxy: { "^/api/(members|projects)(?:[?]|$)": "http://localhost:8000" },
   },
   build: {
     rollupOptions: {
