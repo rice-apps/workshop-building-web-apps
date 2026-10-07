@@ -58,7 +58,8 @@ with tempfile.TemporaryDirectory() as temporary:
         project = httpx.post(base + "/api/projects", json={"name":"Demo Smoke Project"})
         assert project.status_code == 201
         row = httpx.post(base + "/api/members", json={"name":"Demo Smoke Member", "role":"designer", "class_year":2029})
-        assert row.status_code == 501
+        assert row.status_code == 200
+        assert row.json() == {"message": "Member created"}
         with httpx.Client() as second_client:
             assert second_client.get(base + "/api/members?role=designer").json() == []
             assert project.json() in second_client.get(base + "/api/projects").json()
@@ -67,7 +68,7 @@ with tempfile.TemporaryDirectory() as temporary:
         ready("http://127.0.0.1:8000/api/projects", api)
         assert httpx.get(base + "/api/members").json() == []
         assert project.json() in httpx.get(base + "/api/projects").json()
-        print("Live HTTP passed: JS module, proxy, Projects, unfinished member 501/no insert, second client, backend restart.")
+        print("Live HTTP passed: JS module, proxy, Projects, diagnostic member 200/no insert, second client, backend restart.")
     finally:
         stop(api)
         if vite is not None:

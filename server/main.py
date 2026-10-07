@@ -1,5 +1,6 @@
 """HTTP boundary: validate requests, call application operations, return JSON."""
 from contextlib import asynccontextmanager
+import logging
 import sqlite3
 from typing import Annotated, Literal
 from fastapi import FastAPI, Request
@@ -50,10 +51,17 @@ def list_members(role: Role | None = None):
     return services.list_members(role)
 
 
-@app.post("/api/members", status_code=201)
+@app.post("/api/members")
 def add_member(member: MemberInput):
-    # HTTP wiring and validation are supplied; implement the service below this boundary.
-    return services.add_member(member.name, member.class_year, member.role)
+    # TODO: replace this diagnostic stub with a call to services.add_member.
+    # Pass member.name, member.class_year, and member.role.
+    # Return the saved member in a JSONResponse with status_code=201.
+    # Use add_project below as the reference. This stub does not save anything.
+    logging.getLogger("uvicorn.error").info("Member created")
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Member created"},
+    )
 
 
 @app.get("/api/projects")
@@ -61,6 +69,10 @@ def list_projects():
     return services.list_projects()
 
 
-@app.post("/api/projects", status_code=201)
+@app.post("/api/projects")
 def add_project(project: ProjectInput):
-    return services.add_project(project.name)
+    saved_project = services.add_project(project.name)
+    return JSONResponse(
+        status_code=201,
+        content=saved_project,
+    )

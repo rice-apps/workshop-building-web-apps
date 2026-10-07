@@ -4,16 +4,16 @@ A small Members/Projects workshop app. Fork this repository and clone your fork.
 
 ## Implement Add Member
 
-The form, input validation, list rendering, HTTP route, and SQLite schema are supplied. Complete the four small TODOs, using Projects as the reference:
+The form, input validation, list rendering, service function, and SQLite schema are supplied. Complete the four small TODOs, using Projects as the reference:
 
 | Layer | File | Your task |
 | --- | --- | --- |
 | Page | `client/event-handlers/members.ts` | Submit the member, then refresh the list |
 | HTTP client | `client/api/members-api.ts` | POST JSON and read the response |
-| Service | `server/services.py` | Delegate to the database function |
+| HTTP handler | `server/main.py` | Replace the logging stub with a service call and explicit 201 response |
 | Storage | `server/database.py` | Execute the supplied SQL and return the row |
 
-Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The unfinished form keeps its values and says nothing was saved. Calling the unfinished endpoint directly returns **501**, never a false 201. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
+Trace the flow from top to bottom; implement from the database upward if you want to test one boundary at a time. Replace each placeholder error. The unfinished form keeps its values and says nothing was saved. The backend stub logs “Member created” and returns **200**, but does not insert a row. Refresh the list to observe that nothing was saved. After wiring the HTTP handler to the supplied service, the database TODO raises a 501 until implemented. Invalid input still returns 422. Member GET/role filtering and Projects list/add are complete.
 
 After implementation, add a fictional member, reload in another browser using the same backend, and restart Python to verify persistence. The annotated full solution is available in Git history at [`f826468`](https://github.com/rice-apps/workshop-building-web-apps/tree/f826468); no checkpoint scripts or branch switching required.
 
@@ -76,7 +76,7 @@ ui/members.html → event-handlers/members.ts → api/members-api.ts → HTTP
 
 Projects follows the same path. HTML defines the form; TypeScript handles events and rendering; `*-api.ts` sends requests. `main.py` validates HTTP input, `services.py` defines application operations, and `database.py` owns SQL. Services simply delegate for now: there are no extra business rules.
 
-GET lists records; the completed Projects POST creates one and returns 201. Member POST returns 501 until implemented. Try `/api/members?role=designer` for a query-parameter example. Invalid input returns 422; database failure returns 503. Browser checks help usability; server validation remains authoritative.
+GET lists records; the completed Projects POST creates one and returns 201. The member diagnostic POST returns 200 without saving; the completed member handler should explicitly return 201. Try `/api/members?role=designer` for a query-parameter example. Invalid input returns 422; database failure returns 503. Browser checks help usability; server validation remains authoritative.
 
 SQLite is the only database. It creates `server/workshop.sqlite3` and one fictional sample project on first startup. No account, key, or environment file is needed. The database file is ignored by Git. Two browser windows using this same backend share data; reload to see changes. Stop/restart the backend to verify persistence. Separate laptops running separate backends have separate databases.
 
@@ -95,4 +95,4 @@ npm run build
 python tests/smoke.py
 ```
 
-Tests cover the unfinished member contract (501 and no insert), member listing/filtering, validation, working Projects add/list, errors, and real HTTP through Vite with a backend restart. When you finish Add Member, replace the stub assertions with 201/saved-row checks. Smoke tests use a temporary SQLite file, not your data. The earlier workshop/checkpoints remain available in Git history at `9971311`.
+Tests cover the diagnostic member contract (200, log message, and no insert), member listing/filtering, validation, working Projects add/list, errors, and real HTTP through Vite with a backend restart. When you finish Add Member, replace the stub assertions with 201/saved-row checks. Smoke tests use a temporary SQLite file, not your data. The earlier workshop/checkpoints remain available in Git history at `9971311`.

@@ -16,12 +16,14 @@ def client(tmp_path, monkeypatch):
         yield client
 
 
-def test_stub_and_working_reference(client):
+def test_stub_and_working_reference(client, caplog):
     assert client.get("/api/members").json() == []
     payload = {"name": "Demo Member", "class_year": 2028, "role": "designer"}
-    response = client.post("/api/members", json=payload)
-    assert response.status_code == 501
-    assert "not implemented" in response.json()["detail"]
+    with caplog.at_level("INFO", logger="uvicorn.error"):
+        response = client.post("/api/members", json=payload)
+    assert response.status_code == 200
+    assert response.json() == {"message": "Member created"}
+    assert "Member created" in caplog.text
     assert database.list_members() == []
     # Seed a fixture directly to test the completed list/filter independently.
     with database.connect() as connection:
@@ -71,3 +73,15 @@ def test_database_error(client, monkeypatch):
     response = client.post("/api/projects", json={"name":"Demo"})
     assert response.status_code == 503
     assert "private database details" not in response.text
+
+
+def test_member_service_delegates(client, monkeypatch):
+    import services
+    calls = []
+    expected = {"id": "demo", "name": "Demo", "class_year": 2028, "role": "designer"}
+    def insert(name, class_year, role):
+        calls.append((name, class_year, role))
+        return expected
+    monkeypatch.setattr(database, "add_member", insert)
+    assert services.add_member("Demo", 2028, "designer") == expected
+    assert calls == [("Demo", 2028, "designer")]
