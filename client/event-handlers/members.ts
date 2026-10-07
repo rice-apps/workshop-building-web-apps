@@ -1,27 +1,42 @@
+// These functions send HTTP requests; this file handles the page itself.
 import { listMembers, addMember } from "../api/members-api";
-import type { Role } from "../types";
+// NewMember describes the fields we send when creating a member.
+import type { NewMember } from "../types";
 
-const form = document.querySelector<HTMLFormElement>("#member-form")!;
-const button = form.querySelector<HTMLButtonElement>("button")!;
-const list = document.querySelector<HTMLUListElement>("#list")!;
-const status = document.querySelector<HTMLParagraphElement>("#status")!;
+// Find the HTML elements we need. "as" tells TypeScript what kind each is.
+const form = document.getElementById("member-form") as HTMLFormElement;
+const nameInput = document.getElementById("name") as HTMLInputElement;
+const yearInput = document.getElementById("class-year") as HTMLInputElement;
+const roleInput = document.getElementById("role") as HTMLSelectElement;
+const submitButton = form.querySelector("button") as HTMLButtonElement;
+const reloadButton = document.getElementById("reload") as HTMLButtonElement;
+const list = document.getElementById("list") as HTMLUListElement;
+const status = document.getElementById("status") as HTMLParagraphElement;
+
+// Remember whether a save is running so repeated clicks don't send it twice.
 let saving = false;
 
+// "async" allows us to use "await" to wait for an HTTP request to finish.
 async function loadMembers() {
-  const rows = await listMembers();
+  const members = await listMembers();
+
+  // Replace the old list with the records returned by the server.
   list.replaceChildren();
-  for (const row of rows) {
+  for (const member of members) {
     const item = document.createElement("li");
-    item.textContent = `${row.name} · ${row.class_year} · ${row.role}`;
+    // textContent displays names as text, never as HTML.
+    item.textContent = member.name + " · " + member.class_year + " · " + member.role;
     list.append(item);
   }
-  if (rows.length === 0) {
+
+  if (members.length === 0) {
     const item = document.createElement("li");
     item.textContent = "No members yet.";
     list.append(item);
   }
 }
 
+// Used both when the page opens and when someone clicks Reload list.
 async function reload() {
   try {
     await loadMembers();
@@ -31,34 +46,70 @@ async function reload() {
   }
 }
 
-form.addEventListener("submit", async (event) => {
+// SubmitEvent is TypeScript's name for the event sent by an HTML form.
+async function handleSubmit(event: SubmitEvent) {
+  // Handle the form here instead of letting the browser navigate away.
   event.preventDefault();
-  if (saving) return;
+  if (saving) {
+    return;
+  }
+
   saving = true;
-  button.disabled = true;
+  submitButton.disabled = true;
   status.textContent = "Saving…";
+
   try {
-    const data = new FormData(form);
-    const name = String(data.get("name") ?? "").trim();
-    if (!name || [...name].length > 80) throw new Error("Enter a name between 1 and 80 characters.");
-    const classYear = Number(data.get("class_year"));
-    const role = data.get("role") as Role;
-    await addMember({ name, class_year: classYear, role });
+    // Read the name and remove spaces at the beginning and end.
+    const name = nameInput.value.trim();
+    // Count the characters before checking the name's length.
+    const characters = Array.from(name);
+    if (characters.length === 0 || characters.length > 80) {
+      throw new Error("Enter a name between 1 and 80 characters.");
+    }
+
+    // Input values start as text. Convert the year to a number.
+    const classYear = Number(yearInput.value);
+    const role = roleInput.value;
+    if (role !== "developer" && role !== "designer") {
+      throw new Error("Choose developer or designer.");
+    }
+
+    // These property names match the JSON fields expected by the Python API.
+    const newMember: NewMember = {
+      name: name,
+      class_year: classYear,
+      role: role,
+    };
+
+    // Wait for the server to save before clearing the form.
+    await addMember(newMember);
     form.reset();
-    // The insert succeeded even if this subsequent list request fails.
+
+    // Fetch the saved list rather than assuming what the database contains.
     try {
       await loadMembers();
       status.textContent = "Member saved.";
     } catch {
+      // Saving already succeeded. Retrying the submit could create a duplicate.
       status.textContent = "Saved, but list reload failed. Reload the list; do not resubmit.";
     }
   } catch (error) {
-    status.textContent = error instanceof Error ? error.message : "Could not save. Check the server.";
+    // Keep the form's values so the user can fix a failed submission.
+    if (error instanceof Error) {
+      status.textContent = error.message;
+    } else {
+      status.textContent = "Could not save. Check the server.";
+    }
   } finally {
+    // This runs after success or failure, enabling the next submission.
     saving = false;
-    button.disabled = false;
+    submitButton.disabled = false;
   }
-});
+}
 
-document.querySelector("#reload")!.addEventListener("click", () => void reload());
-void reload();
+// Connect the HTML controls to our functions. Submit handles clicks and Enter.
+form.addEventListener("submit", handleSubmit);
+reloadButton.addEventListener("click", reload);
+
+// Load existing records as soon as this page opens.
+reload();
