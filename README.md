@@ -26,7 +26,7 @@ In another terminal:
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173/pages/members.html** or **http://127.0.0.1:5173/pages/projects.html**. API docs: http://127.0.0.1:8000/docs.
+Open **http://127.0.0.1:5173/ui/members.html** or **http://127.0.0.1:5173/ui/projects.html**. API docs: http://127.0.0.1:8000/docs.
 
 On Windows, create the environment with `py -3.13 -m venv server/.venv` and use `server\.venv\Scripts\python.exe` instead of activating it. Run the same pip/uvicorn commands with that interpreter. Windows setup has not been verified locally.
 
@@ -34,12 +34,10 @@ On Windows, create the environment with `py -3.13 -m venv server/.venv` and use 
 
 ```text
 client/
-  pages/             HTML pages
-  src/
-    pages/           Event handling and rendering
-    api/             Backend fetch calls
-    types.ts
-    styles.css
+  ui/                HTML pages and CSS
+  events/            Event handling and rendering
+  api/               Backend fetch calls
+  types.ts           Shared types
 server/
   app/               main.py, services.py, database.py
   requirements.txt
@@ -54,7 +52,7 @@ Run npm commands from the repository root. All tests live together; the client a
 ## Follow a request
 
 ```text
-pages/members.html → src/pages/members.ts → src/api/members-api.ts → HTTP
+ui/members.html → events/members.ts → api/members-api.ts → HTTP
   → server/app/main.py → services.py → database.py → SQLite
   ← JSON response ← saved row
 ```

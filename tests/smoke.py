@@ -40,9 +40,20 @@ with tempfile.TemporaryDirectory() as temporary:
     try:
         ready("http://127.0.0.1:8000/api/projects", api)
         vite = subprocess.Popen(["node", "node_modules/vite/bin/vite.js", "--config", "client/vite.config.ts", "--host", "127.0.0.1"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        ready("http://127.0.0.1:5173/pages/members.html", vite)
+        ready("http://127.0.0.1:5173/ui/members.html", vite)
         base = "http://127.0.0.1:5173"
-        module = httpx.get(base + "/src/api/members-api.ts")
+        # Follow both pages' navigation and asset URLs through the live server.
+        for page in ("members", "projects"):
+            html = httpx.get(base + f"/ui/{page}.html")
+            assert html.status_code == 200
+            for link in ("/ui/members.html", "/ui/projects.html", "/ui/styles.css"):
+                assert f'href="{link}"' in html.text
+                assert httpx.get(base + link).status_code == 200
+            script = f"/events/{page}.ts"
+            assert f'src="{script}"' in html.text
+            assert httpx.get(base + script).status_code == 200
+            assert httpx.get(base + f"/api/{page}-api.ts").status_code == 200
+        module = httpx.get(base + "/api/members-api.ts")
         assert module.status_code == 200 and "export" in module.text, "Proxy must not intercept TypeScript modules"
         assert httpx.post(base + "/api/projects", json={"name":"Demo Smoke Project"}).status_code == 201
         row = httpx.post(base + "/api/members", json={"name":"Demo Smoke Member", "role":"designer", "class_year":2029})
