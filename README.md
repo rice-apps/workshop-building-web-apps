@@ -1,6 +1,6 @@
 # RiceApps web app workshop
 
-Fork this repository, clone your fork, and open its folder in your editor. You’ll need Node.js and Python installed (tested with Node 25.3.0 and Python 3.13).
+Fork this repository, clone your fork, and open its folder in your editor. You’ll need Node.js and Python 3.10 or newer installed.
 
 [Workshop slideshow](https://docs.google.com/presentation/d/1N1Fj9UxtaxNMlwWbPzDnJNIxGYJKfJhGYPVaGS15m6E/edit?usp=sharing)
 
@@ -23,10 +23,10 @@ Leave this terminal running. Open [Members](http://localhost:5173/ui/members.htm
 
 ## 2. Run the backend
 
-Open a **second terminal** in the same root folder. Create a Python environment and install dependencies:
+Open a **second terminal** in the same root folder. Create a Python environment using your installed Python and install dependencies (use `python` instead of `python3` if that’s its command on your machine):
 
 ```sh
-python3.13 -m venv server/.venv
+python3 -m venv server/.venv
 source server/.venv/bin/activate
 python -m pip install -r server/requirements.txt
 ```
@@ -39,4 +39,4 @@ python -m uvicorn main:app --app-dir server --reload --host localhost --port 800
 
 Leave this terminal running too. You can explore the API at [localhost:8000/docs](http://localhost:8000/docs). SQLite sets itself up automatically; no database account or keys are needed.
 
-On Windows, use `py -3.13 -m venv server/.venv` and activate with `server\.venv\Scripts\Activate.ps1` in PowerShell. The pip and startup commands are the same.
+On Windows, use `py -m venv server/.venv` and activate with `server\.venv\Scripts\Activate.ps1` in PowerShell. The pip and startup commands are the same.
