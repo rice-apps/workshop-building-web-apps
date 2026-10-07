@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.venv*/
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+*.sqlite3*
+.checkpoint-backups/
+.DS_Store

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RiceApps · Projects</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">RICEAPPS / DEV WORKSHOP 02</span>
+        <h1>Build something together.</h1>
+        <p>A fictional team. A real path from browser to database.</p>
+      </header>
+      <nav aria-label="Pages">
+        <a href="/">Members</a
+        ><a href="/projects.html">Projects reference ↗</a>
+      </nav>
+      <p id="storage" class="badge">Checking server storage…</p>
+      <section>
+        <h2>Add a project</h2>
+        <p id="stage"></p>
+        <form id="project-form">
+          <label for="name">Project name</label
+          ><input
+            id="name"
+            name="name"
+            required
+            maxlength="80"
+            placeholder="Demo Project A"
+            autocomplete="off"
+          /><button type="submit" class="primary-button">Add project</button>
+        </form>
+        <p id="status" role="status" aria-live="polite"></p>
+      </section>
+      <section>
+        <div class="list-heading">
+          <h2>Projects</h2>
+          <button id="reload" type="button">Reload list</button>
+        </div>
+        <ul id="list"></ul>
+      </section>
+      <footer>
+        HTML → TypeScript → HTTP → FastAPI → storage<br />Fictional data only ·
+        October 7 · Omar + Mac
+      </footer>
+    </main>
+    <script type="module" src="/projects.ts"></script>
+  </body>
+</html>
